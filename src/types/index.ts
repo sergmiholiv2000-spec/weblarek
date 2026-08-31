@@ -1,14 +1,5 @@
 export type ApiPostMethods = "POST" | "PUT" | "DELETE";
 
-export interface IApi {
-  get<T extends object>(uri: string): Promise<T>;
-  post<T extends object>(
-    uri: string,
-    data: object,
-    method?: ApiPostMethods,
-  ): Promise<T>;
-}
-
 export type TPayment = "card" | "cash";
 
 export interface IProduct {
@@ -27,26 +18,29 @@ export interface IBuyer {
   address: string;
 }
 
-export interface IBuyerValidationErrors {
-  [key: string]: string;
-}
+// Теперь тип ошибок зависит от IBuyer и автоматически обновляется при изменении полей
+export type IBuyerValidationErrors = Partial<Record<keyof IBuyer, string>>;
 
 // Ответ сервера на GET /product/
-export interface IProductsResponse {
+export interface IProductListResponse {
+  total: number;
   items: IProduct[];
 }
 
-// Данные, которые отправляем на сервер при оформлении заказа
+// Данные, которые реально отправляет клиент при оформлении заказа (по контракту из Postman)
 export interface IOrderPayload {
-  products: IProduct[];
-  buyer: IBuyer;
+  payment: TPayment;
+  email: string;
+  phone: string;
+  address: string;
+  total: number;
+  items: string[]; // массив ID товаров, как в примере запроса
 }
 
 // Ответ сервера после POST /order/
 export interface IOrderResponse {
+  id: string;
   total: number;
-  orderId: string;
-  message: string;
 }
 
 export interface IApi {

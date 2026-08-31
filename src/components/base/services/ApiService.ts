@@ -1,5 +1,9 @@
-import { IApi } from "../types";
-import { IProductsResponse, IOrderPayload, IOrderResponse } from "../types";
+import { IApi } from "../../../types";
+import {
+  IProductListResponse,
+  IOrderPayload,
+  IOrderResponse,
+} from "../../../types";
 
 export class ApiService {
   private api: IApi;
@@ -11,8 +15,8 @@ export class ApiService {
   /**
    * Получает список товаров с сервера.
    */
-  async getProducts(): Promise<IProductsResponse> {
-    return this.api.get<IProductsResponse>("/product/");
+  async getProducts(): Promise<IProductListResponse> {
+    return this.api.get<IProductListResponse>("/product/");
   }
 
   /**

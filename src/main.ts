@@ -3,9 +3,9 @@ import "./scss/styles.scss";
 import { Products } from "./models/Products";
 import { Cart } from "./models/Cart";
 import { Buyer } from "./models/Buyer";
-import { ApiService } from "./models/ApiService";
+import { ApiService } from "./components/base/services/ApiService";
 import { apiProducts } from "./utils/data";
-import { IProductsResponse, IApi } from "./types";
+import { IProductListResponse, IApi } from "./types";
 
 // --- ЗАГЛУШКА API (чтобы проект собирался и не падал без сервера) ---
 const mockApiClient: IApi = {
@@ -105,7 +105,7 @@ const apiService = new ApiService(mockApiClient);
 (async () => {
   try {
     console.log("🔄 Запрос через ApiService.getProducts()...");
-    const response: IProductsResponse = await apiService.getProducts();
+    const response: IProductListResponse = await apiService.getProducts();
     console.log("✅ Ответ от ApiService:", response);
 
     // Перезаписываем товары данными «с сервера»

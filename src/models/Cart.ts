@@ -8,14 +8,14 @@ export class Cart {
   }
 
   addItem(product: IProduct): void {
-    const exists = this.items.some((item) => item.id === product.id);
-    if (!exists) {
+    // Используем готовый метод hasItem — так код чище и нет дублирования логики
+    if (!this.hasItem(product.id)) {
       this.items.push(product);
     }
   }
 
   removeItem(product: IProduct): void {
-    this.items = this.items.filter((item) => item.id !== product.id);
+    this.hasItem(product.id);
   }
 
   clear(): void {
