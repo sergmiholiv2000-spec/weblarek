@@ -1,4 +1,4 @@
-import { IProduct } from "../types";
+import { IProduct } from "../types"; // этот импорт тоже нужно будет поправить после переноса
 
 export class Cart {
   private items: IProduct[] = [];
@@ -8,14 +8,14 @@ export class Cart {
   }
 
   addItem(product: IProduct): void {
-    // Используем готовый метод hasItem — так код чище и нет дублирования логики
     if (!this.hasItem(product.id)) {
       this.items.push(product);
     }
   }
 
-  removeItem(product: IProduct): void {
-    this.hasItem(product.id);
+  // Исправлено: теперь принимает id, удаляет через filter
+  removeItem(id: string): void {
+    this.items = this.items.filter((item) => item.id !== id);
   }
 
   clear(): void {

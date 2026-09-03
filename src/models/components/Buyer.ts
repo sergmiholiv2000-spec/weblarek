@@ -1,4 +1,4 @@
-import { TPayment, IBuyer, IBuyerValidationErrors } from "../types";
+import { TPayment, IBuyer, IBuyerValidationErrors } from "../../types";
 
 export class Buyer {
   private payment: TPayment | null = null;
@@ -6,7 +6,6 @@ export class Buyer {
   private phone: string = "";
   private address: string = "";
 
-  // Можно обновлять отдельные поля, не сбрасывая остальные
   setData(data: Partial<IBuyer>): void {
     if (data.payment !== undefined) this.payment = data.payment;
     if (data.email !== undefined) this.email = data.email;
@@ -14,13 +13,9 @@ export class Buyer {
     if (data.address !== undefined) this.address = data.address;
   }
 
-  getData(): IBuyer | string | null {
-    // Возвращаем null, если хотя бы одно поле не заполнено — опционально, по желанию
-    if (!this.payment || !this.email || !this.phone || !this.address) {
-      return null;
-    }
+  getData(): IBuyer {
     return {
-      payment: this.payment,
+      payment: this.payment ?? undefined,
       email: this.email,
       phone: this.phone,
       address: this.address,
@@ -34,7 +29,7 @@ export class Buyer {
     this.address = "";
   }
 
-  validate(): IBuyerValidationErrors  {
+  validate(): IBuyerValidationErrors {
     const errors: IBuyerValidationErrors = {};
 
     if (!this.payment) {
