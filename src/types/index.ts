@@ -12,32 +12,24 @@ export interface IProduct {
 }
 
 export interface IBuyer {
-  payment?: TPayment;
+  payment: TPayment | null;
   email: string;
   phone: string;
   address: string;
 }
 
-// Теперь тип ошибок зависит от IBuyer и автоматически обновляется при изменении полей
 export type IBuyerValidationErrors = Partial<Record<keyof IBuyer, string>>;
 
-// Ответ сервера на GET /product/
 export interface IProductListResponse {
   total: number;
   items: IProduct[];
 }
 
-// Данные, которые реально отправляет клиент при оформлении заказа (по контракту из Postman)
-export interface IOrderPayload {
-  payment: TPayment;
-  email: string;
-  phone: string;
-  address: string;
+export interface IOrderPayload extends IBuyer {
   total: number;
-  items: string[]; // массив ID товаров, как в примере запроса
+  items: string[];
 }
 
-// Ответ сервера после POST /order/
 export interface IOrderResponse {
   id: string;
   total: number;

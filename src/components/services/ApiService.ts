@@ -1,9 +1,9 @@
-import { IApi } from "../../../types";
+import { IApi } from "../../types";
 import {
   IProductListResponse,
   IOrderPayload,
   IOrderResponse,
-} from "../../../types";
+} from "../../types";
 
 export class ApiService {
   private api: IApi;

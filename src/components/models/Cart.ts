@@ -1,4 +1,4 @@
-import { IProduct } from "../types"; // этот импорт тоже нужно будет поправить после переноса
+import { IProduct } from "../../types";
 
 export class Cart {
   private items: IProduct[] = [];
@@ -13,7 +13,7 @@ export class Cart {
     }
   }
 
-  // Исправлено: теперь принимает id, удаляет через filter
+ 
   removeItem(id: string): void {
     this.items = this.items.filter((item) => item.id !== id);
   }

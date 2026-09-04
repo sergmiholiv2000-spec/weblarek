@@ -1,11 +1,11 @@
 import "./scss/styles.scss";
 
-import { Products } from "./models/components/Products";
-import { Cart } from "./models/components/Cart";
-import { Buyer } from "./models/components/Buyer";
+import { Products } from "./components/models/Products";
+import { Cart } from "./components/models/Cart";
+import { Buyer } from "./components/models/Buyer";
 
 import { Api } from "./components/base/Api";
-import { ApiService } from "./components/base/services/ApiService";
+import { ApiService } from "./components/services/ApiService";
 import { API_URL } from "./utils/constants";
 import { IProductListResponse } from "./types";
 
@@ -55,76 +55,70 @@ console.group("📦 Проверка модели Products");
     } else {
       console.warn("⚠️ В массиве товаров нет ни одного элемента!");
     }
+
+    // === 2. Проверка Cart (теперь — строго после загрузки каталога) ===
+    console.group("🛒 Проверка модели Cart");
+
+    const secondProduct = items[1];
+
+    if (firstProduct) {
+      cart.addItem(firstProduct);
+      console.log("addItem(первый товар) выполнен");
+      console.log("Товары в корзине:", cart.getItems());
+      console.log("Количество товаров в корзине:", cart.getCount());
+      console.log("Общая стоимость корзины:", cart.getTotalPrice());
+
+      console.log("Товар есть в корзине:", cart.hasItem(firstProduct.id));
+
+      if (secondProduct) {
+        cart.addItem(secondProduct);
+        console.log("addItem(второй товар) выполнен");
+        console.log(
+          "Корзина после добавления второго товара:",
+          cart.getItems(),
+        );
+        console.log("Количество в корзине:", cart.getCount());
+        console.log(
+          "Общая стоимость после второго товара:",
+          cart.getTotalPrice(),
+        );
+      }
+
+      // Проверка removeItem
+      cart.removeItem(firstProduct.id);
+      console.log("Корзина после удаления первого товара:", cart.getItems());
+    } else {
+      console.warn(
+        "⚠️ Не удалось добавить товар в корзину: нет товаров в каталоге",
+      );
+    }
+
+    // Проверка clear
+    cart.clear();
+    console.log("🧹 Корзина очищена (cart.clear())");
+    console.groupEnd(); // Cart
+
+    // === 3. Проверка Buyer ===
+    console.group("👤 Проверка модели Buyer");
+
+    buyer.setData({ payment: "card", address: "ул. Примерная, д. 1" });
+    console.log("setData (частичные данные) выполнен");
+    console.log("Частичные данные покупателя:", buyer.getData());
+    console.log("Ошибки валидации (частичные данные):", buyer.validate());
+
+    buyer.setData({ email: "test@example.com", phone: "+79990000000" });
+    console.log("setData (дозаполненные данные) выполнен");
+    console.log("Полные данные покупателя:", buyer.getData());
+    console.log("Ошибки валидации (полные данные):", buyer.validate());
+
+    // Проверка clear
+    buyer.clear();
+    console.log("Данные покупателя после очистки:", buyer.getData());
+    console.groupEnd(); // Buyer
   } catch (error) {
-    console.error("❌ Ошибка при загрузке товаров:", error);
+    console.error(
+      "❌ Ошибка при загрузке товаров или проверке моделей:",
+      error,
+    );
   }
 })();
-
-console.groupEnd();
-
-// === 2. Проверка Cart: addItem, removeItem, hasItem, getItems, getCount, getTotalPrice, clear ===
-console.group("🛒 Проверка модели Cart");
-
-const itemsForCart = productsModel.getItems();
-const firstProduct = itemsForCart[0];
-const secondProduct = itemsForCart[1];
-
-if (firstProduct) {
-  cart.addItem(firstProduct);
-  console.log("addItem(первый товар) выполнен");
-  console.log("Товары в корзине:", cart.getItems());
-  console.log("Количество товаров в корзине:", cart.getCount());
-  console.log("Общая стоимость корзины:", cart.getTotalPrice());
-
-  console.log("Товар есть в корзине:", cart.hasItem(firstProduct.id));
-
-  if (secondProduct) {
-    cart.addItem(secondProduct);
-    console.log("addItem(второй товар) выполнен");
-    console.log("Корзина после добавления второго товара:", cart.getItems());
-    console.log("Количество в корзине:", cart.getCount());
-    console.log("Общая стоимость после второго товара:", cart.getTotalPrice());
-  }
-
-  // Проверка removeItem
-  cart.removeItem(firstProduct.id);
-  console.log("Корзина после удаления товара:", cart.getItems());
-} else {
-  console.warn(
-    "⚠️ Не удалось добавить товар в корзину: нет товаров в каталоге",
-  );
-}
-
-// Проверка clear
-cart.clear();
-console.log("🧹 Корзина очищена (cart.clear())");
-console.groupEnd();
-
-// === 3. Проверка Buyer: setData, getData, validate, clear ===
-console.group("👤 Проверка модели Buyer");
-
-buyer.setData({ payment: "card", address: "ул. Примерная, д. 1" });
-console.log("setData (частичные данные) выполнен");
-console.log("Частичные данные покупателя:", buyer.getData());
-console.log("Ошибки валидации (частичные данные):", buyer.validate());
-
-buyer.setData({ email: "test@example.com", phone: "+79990000000" });
-console.log("setData (дозаполненные данные) выполнен");
-console.log("Полные данные покупателя:", buyer.getData());
-console.log("Ошибки валидации (полные данные):", buyer.validate());
-
-// Проверка clear
-buyer.clear();
-console.log("Данные покупателя после очистки:", buyer.getData());
-console.groupEnd();
-
-// === 4. Демонстрация ApiService (финальная проверка после загрузки данных) ===
-console.group("🌐 Слой коммуникации: ApiService");
-
-// Если нужно дополнительно убедиться, что ApiService корректно работает,
-// можно сделать повторный запрос (опционально, зависит от требований).
-// В текущей реализации данные уже загружены в productsModel выше.
-console.log("ApiService настроен и готов к работе через экземпляр Api.");
-console.groupEnd();
-
-console.groupEnd();
