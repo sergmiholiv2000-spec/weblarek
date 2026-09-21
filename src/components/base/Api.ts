@@ -1,6 +1,6 @@
-type ApiPostMethods = "POST" | "PUT" | "DELETE";
+import { IApi, TApiPostMethod } from "../../types";
 
-export class Api {
+export class Api implements IApi {
   readonly baseUrl: string;
   protected options: RequestInit;
 
@@ -15,29 +15,31 @@ export class Api {
   }
 
   protected handleResponse<T>(response: Response): Promise<T> {
-    if (response.ok) return response.json();
-    else
-      return response
-        .json()
-        .then((data) => Promise.reject(data.error ?? response.statusText));
+    if (response.ok) {
+      return response.json();
+    }
+
+    return response
+      .json()
+      .then((data) => Promise.reject(data.error ?? response.statusText));
   }
 
-  get<T extends object>(uri: string) {
+  get<T extends object>(uri: string): Promise<T> {
     return fetch(this.baseUrl + uri, {
       ...this.options,
       method: "GET",
-    }).then(this.handleResponse<T>);
+    }).then((response) => this.handleResponse<T>(response));
   }
 
   post<T extends object>(
     uri: string,
     data: object,
-    method: ApiPostMethods = "POST",
-  ) {
+    method: TApiPostMethod = "POST",
+  ): Promise<T> {
     return fetch(this.baseUrl + uri, {
       ...this.options,
       method,
       body: JSON.stringify(data),
-    }).then(this.handleResponse<T>);
+    }).then((response) => this.handleResponse<T>(response));
   }
 }

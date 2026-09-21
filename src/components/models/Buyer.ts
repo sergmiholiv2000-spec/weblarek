@@ -1,18 +1,48 @@
-import { TPayment, IBuyer, IBuyerValidationErrors } from "../../types";
+import { IBuyer, IBuyerModel, TBuyerValidationErrors, TPayment } from "../../types";
+import { EVENTS, VALIDATION_MESSAGES } from "../../utils/constants";
+import { IEvents } from "../base/Events";
 
-export class Buyer {
+/**
+ * Хранит и валидирует данные покупателя.
+ */
+export class Buyer implements IBuyerModel {
   private payment: TPayment | null = null;
-  private email: string = "";
-  private phone: string = "";
-  private address: string = "";
+  private email = "";
+  private phone = "";
+  private address = "";
 
+  constructor(private readonly events: IEvents) {}
+
+  /** Обновляет отдельные поля, не сбрасывая остальные. */
   setData(data: Partial<IBuyer>): void {
-    if (data.payment !== undefined) this.payment = data.payment;
-    if (data.email !== undefined) this.email = data.email;
-    if (data.phone !== undefined) this.phone = data.phone;
-    if (data.address !== undefined) this.address = data.address;
+    let changed = false;
+
+    if (data.payment !== undefined && data.payment !== this.payment) {
+      this.payment = data.payment;
+      changed = true;
+    }
+
+    if (data.email !== undefined && data.email !== this.email) {
+      this.email = data.email;
+      changed = true;
+    }
+
+    if (data.phone !== undefined && data.phone !== this.phone) {
+      this.phone = data.phone;
+      changed = true;
+    }
+
+    if (data.address !== undefined && data.address !== this.address) {
+      this.address = data.address;
+      changed = true;
+    }
+
+    if (changed) {
+      this.events.emit(EVENTS.buyerChanged);
+    }
   }
 
+  /** Возвращает все данные покупателя. */
   getData(): IBuyer {
     return {
       payment: this.payment,
@@ -22,27 +52,34 @@ export class Buyer {
     };
   }
 
+  /** Очищает данные покупателя. */
   clear(): void {
     this.payment = null;
     this.email = "";
     this.phone = "";
     this.address = "";
+
+    this.events.emit(EVENTS.buyerChanged);
   }
 
-  validate(): IBuyerValidationErrors {
-    const errors: IBuyerValidationErrors = {};
+  /** Проверяет заполненность полей. */
+  validate(): TBuyerValidationErrors {
+    const errors: TBuyerValidationErrors = {};
 
     if (!this.payment) {
-      errors.payment = "Не выбран вид оплаты";
+      errors.payment = VALIDATION_MESSAGES.payment;
     }
-    if (!this.email) {
-      errors.email = "Укажите email";
-    }
-    if (!this.phone) {
-      errors.phone = "Укажите телефон";
-    }
+
     if (!this.address) {
-      errors.address = "Укажите адрес доставки";
+      errors.address = VALIDATION_MESSAGES.address;
+    }
+
+    if (!this.email) {
+      errors.email = VALIDATION_MESSAGES.email;
+    }
+
+    if (!this.phone) {
+      errors.phone = VALIDATION_MESSAGES.phone;
     }
 
     return errors;
