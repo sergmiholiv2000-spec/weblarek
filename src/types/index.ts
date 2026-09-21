@@ -1,20 +1,7 @@
 export type ApiPostMethods = "POST" | "PUT" | "DELETE";
 
-export interface IApi {
-  get<T extends object>(uri: string): Promise<T>;
-  post<T extends object>(
-    uri: string,
-    data: object,
-    method?: ApiPostMethods,
-  ): Promise<T>;
-}
+export type TPayment = "card" | "cash";
 
-export type ValidationErrors<T> = Partial<Record<keyof T, string>>;
-
-export enum TPayment {
-    CARD = 'card',
-    CASH = 'cash'
-}
 export interface IProduct {
   id: string;
   description: string;
@@ -25,22 +12,20 @@ export interface IProduct {
 }
 
 export interface IBuyer {
-  payment: TPayment;
+  payment: TPayment | null;
   email: string;
   phone: string;
   address: string;
 }
 
-export interface IProductsResponse {
-  items: IProduct[];
+export type IBuyerValidationErrors = Partial<Record<keyof IBuyer, string>>;
+
+export interface IProductListResponse {
   total: number;
+  items: IProduct[];
 }
 
-export interface IOrderPayload {
-  payment: TPayment;
-  email: string;
-  phone: string;
-  address: string;
+export interface IOrderPayload extends IBuyer {
   total: number;
   items: string[];
 }
@@ -48,4 +33,13 @@ export interface IOrderPayload {
 export interface IOrderResponse {
   id: string;
   total: number;
+}
+
+export interface IApi {
+  get<T extends object>(uri: string): Promise<T>;
+  post<T extends object>(
+    uri: string,
+    data: object,
+    method?: ApiPostMethods,
+  ): Promise<T>;
 }
