@@ -15,25 +15,16 @@ export class Cart implements ICartModel {
     return [...this.items];
   }
 
-  /** Добавляет товар, если его ещё нет в корзине. */
+  /** Добавляет товар в корзину. */
   addItem(product: IProduct): void {
-    if (this.hasItem(product.id)) {
-      return;
-    }
-
     this.items.push(product);
     this.events.emit(EVENTS.cartChanged);
   }
 
   /** Удаляет товар по идентификатору. */
   removeItem(id: string): void {
-    const previousCount = this.items.length;
-
     this.items = this.items.filter((item) => item.id !== id);
-
-    if (this.items.length !== previousCount) {
-      this.events.emit(EVENTS.cartChanged);
-    }
+    this.events.emit(EVENTS.cartChanged);
   }
 
   /** Очищает корзину. */

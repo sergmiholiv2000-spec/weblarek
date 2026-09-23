@@ -12,9 +12,9 @@ export const API_ENDPOINTS = {
 
 export const categoryMap: Record<string, string> = {
   "софт-скил": "card__category_soft",
-  "другое": "card__category_other",
-  "дополнительное": "card__category_additional",
-  "кнопка": "card__category_button",
+  другое: "card__category_other",
+  дополнительное: "card__category_additional",
+  кнопка: "card__category_button",
   "хард-скил": "card__category_hard",
 };
 
@@ -77,7 +77,6 @@ export const TEXTS = {
   emptyBasket: "Корзина пуста",
   successTotal: "Списано",
   orderError: "Не удалось оформить заказ. Попробуйте ещё раз",
-  catalogError: "Не удалось загрузить каталог товаров",
 };
 
 export const VALIDATION_MESSAGES = {

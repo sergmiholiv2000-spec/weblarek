@@ -4,14 +4,6 @@ export type TApiPostMethod = "POST" | "PUT" | "DELETE";
 
 export type TPayment = "card" | "cash";
 
-export type TModalContent =
-  | "none"
-  | "product"
-  | "basket"
-  | "order"
-  | "contacts"
-  | "success";
-
 export type TTemplateName =
   | "catalogCard"
   | "previewCard"

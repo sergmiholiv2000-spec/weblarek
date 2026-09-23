@@ -26,7 +26,6 @@ import {
   IProduct,
   IProductIdPayload,
   IProductListResponse,
-  TModalContent,
   TPayment,
 } from "./types";
 
@@ -53,14 +52,12 @@ const productsModel = new Products(events);
 const cart = new Cart(events);
 const buyer = new Buyer(events);
 
-const page = new Page(
-  ensureElement<HTMLElement>(ROOT_SELECTORS.page),
-  () => events.emit(EVENTS.basketOpen),
+const page = new Page(ensureElement<HTMLElement>(ROOT_SELECTORS.page), () =>
+  events.emit(EVENTS.basketOpen),
 );
 
-const modal = new Modal(
-  ensureElement<HTMLElement>(ROOT_SELECTORS.modal),
-  () => events.emit(EVENTS.modalClose),
+const modal = new Modal(ensureElement<HTMLElement>(ROOT_SELECTORS.modal), () =>
+  events.emit(EVENTS.modalClose),
 );
 
 const basketView = new Basket(cloneTemplate(TEMPLATES.basket), () =>
@@ -89,17 +86,13 @@ const successView = new Success(cloneTemplate(TEMPLATES.success), () =>
   events.emit(EVENTS.modalClose),
 );
 
-let currentModal: TModalContent = "none";
-
-function openModal(content: HTMLElement, modalType: TModalContent): void {
-  currentModal = modalType;
+function openModal(content: HTMLElement): void {
   modal.render({ content });
   modal.open();
   page.render({ locked: true });
 }
 
 function closeModal(): void {
-  currentModal = "none";
   modal.close();
   page.render({ locked: false });
 }
@@ -185,32 +178,32 @@ events.on(EVENTS.productSelected, () => {
     return;
   }
 
-  openModal(previewCard.render(getPreviewState(product)), "product");
+  openModal(previewCard.render(getPreviewState(product)));
 });
 
 events.on(EVENTS.cartChanged, () => {
   page.render({ counter: cart.getCount() });
-
-  if (currentModal === "basket") {
-    basketView.render(getBasketState());
-  }
+  basketView.render(getBasketState());
 });
 
 events.on(EVENTS.buyerChanged, () => {
-  if (currentModal === "order") {
-    orderForm.render({
-      payment: buyer.getData().payment,
-      valid: collectErrors(ORDER_FIELDS) === "",
-      errors: collectErrors(ORDER_FIELDS),
-    });
-  }
+  const data = buyer.getData();
+  const orderErrors = collectErrors(ORDER_FIELDS);
+  const contactsErrors = collectErrors(CONTACTS_FIELDS);
 
-  if (currentModal === "contacts") {
-    contactsForm.render({
-      valid: collectErrors(CONTACTS_FIELDS) === "",
-      errors: collectErrors(CONTACTS_FIELDS),
-    });
-  }
+  orderForm.render({
+    payment: data.payment,
+    address: data.address,
+    valid: orderErrors === "",
+    errors: orderErrors,
+  });
+
+  contactsForm.render({
+    email: data.email,
+    phone: data.phone,
+    valid: contactsErrors === "",
+    errors: contactsErrors,
+  });
 });
 
 /*
@@ -228,7 +221,7 @@ events.on<IProductIdPayload>(EVENTS.productSelect, ({ id }) => {
 events.on(EVENTS.productAction, () => {
   const product = productsModel.getSelectedProduct();
 
-  if (!product || product.price === null) {
+  if (!product) {
     return;
   }
 
@@ -243,7 +236,7 @@ events.on(EVENTS.productAction, () => {
 });
 
 events.on(EVENTS.basketOpen, () => {
-  openModal(basketView.render(getBasketState()), "basket");
+  openModal(basketView.render(getBasketState()));
 });
 
 events.on<IProductIdPayload>(EVENTS.cartRemove, ({ id }) => {
@@ -251,21 +244,7 @@ events.on<IProductIdPayload>(EVENTS.cartRemove, ({ id }) => {
 });
 
 events.on(EVENTS.orderOpen, () => {
-  if (cart.getCount() === 0) {
-    return;
-  }
-
-  const data = buyer.getData();
-
-  openModal(
-    orderForm.render({
-      payment: data.payment,
-      address: data.address,
-      valid: collectErrors(ORDER_FIELDS) === "",
-      errors: collectErrors(ORDER_FIELDS),
-    }),
-    "order",
-  );
+  openModal(orderForm.render());
 });
 
 events.on<IFormFieldPayload>(EVENTS.orderChange, ({ field, value }) => {
@@ -279,24 +258,7 @@ events.on<IFormFieldPayload>(EVENTS.orderChange, ({ field, value }) => {
 });
 
 events.on(EVENTS.orderNext, () => {
-  const orderErrors = collectErrors(ORDER_FIELDS);
-
-  if (orderErrors !== "") {
-    orderForm.render({ valid: false, errors: orderErrors });
-    return;
-  }
-
-  const data = buyer.getData();
-
-  openModal(
-    contactsForm.render({
-      email: data.email,
-      phone: data.phone,
-      valid: collectErrors(CONTACTS_FIELDS) === "",
-      errors: collectErrors(CONTACTS_FIELDS),
-    }),
-    "contacts",
-  );
+  openModal(contactsForm.render());
 });
 
 events.on<IFormFieldPayload>(EVENTS.contactsChange, ({ field, value }) => {
@@ -310,16 +272,10 @@ events.on<IFormFieldPayload>(EVENTS.contactsChange, ({ field, value }) => {
 });
 
 events.on(EVENTS.orderPay, () => {
-  const contactsErrors = collectErrors(CONTACTS_FIELDS);
-
-  if (contactsErrors !== "") {
-    contactsForm.render({ valid: false, errors: contactsErrors });
-    return;
-  }
-
   const { payment, email, phone, address } = buyer.getData();
 
-  if (!payment || cart.getCount() === 0) {
+  // Сужение типа: в заказе способ оплаты обязателен
+  if (!payment) {
     return;
   }
 
@@ -335,7 +291,7 @@ events.on(EVENTS.orderPay, () => {
   apiService
     .sendOrder(payload)
     .then((response) => {
-      openModal(successView.render({ total: response.total }), "success");
+      openModal(successView.render({ total: response.total }));
       cart.clear();
       buyer.clear();
     })

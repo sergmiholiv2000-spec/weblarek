@@ -1,4 +1,9 @@
-import { IBuyer, IBuyerModel, TBuyerValidationErrors, TPayment } from "../../types";
+import {
+  IBuyer,
+  IBuyerModel,
+  TBuyerValidationErrors,
+  TPayment,
+} from "../../types";
 import { EVENTS, VALIDATION_MESSAGES } from "../../utils/constants";
 import { IEvents } from "../base/Events";
 
@@ -15,31 +20,23 @@ export class Buyer implements IBuyerModel {
 
   /** Обновляет отдельные поля, не сбрасывая остальные. */
   setData(data: Partial<IBuyer>): void {
-    let changed = false;
-
-    if (data.payment !== undefined && data.payment !== this.payment) {
+    if (data.payment !== undefined) {
       this.payment = data.payment;
-      changed = true;
     }
 
-    if (data.email !== undefined && data.email !== this.email) {
+    if (data.email !== undefined) {
       this.email = data.email;
-      changed = true;
     }
 
-    if (data.phone !== undefined && data.phone !== this.phone) {
+    if (data.phone !== undefined) {
       this.phone = data.phone;
-      changed = true;
     }
 
-    if (data.address !== undefined && data.address !== this.address) {
+    if (data.address !== undefined) {
       this.address = data.address;
-      changed = true;
     }
 
-    if (changed) {
-      this.events.emit(EVENTS.buyerChanged);
-    }
+    this.events.emit(EVENTS.buyerChanged);
   }
 
   /** Возвращает все данные покупателя. */
